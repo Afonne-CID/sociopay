@@ -2,3 +2,4 @@ include/*
 Scripts/*
 Lib/*
 .*
+__pycache__

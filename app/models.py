@@ -1,5 +1,5 @@
 import mimetypes
-from db import db
+from . import db
 
 
 class User(db.Model):
