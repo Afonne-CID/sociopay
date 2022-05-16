@@ -3,15 +3,33 @@ from flask import request, make_response
 from dotenv import load_dotenv
 from datetime import datetime as dt
 from flask import current_app as app
-from .models import db, User, Payment
-from credo.payment import Payment
+from .models import db, User #, Payment
+
+@app.route('/', methods=['POST', 'GET'])
+def add_user():
+    if request.method == 'GET':
+        new_user = User(
+            username = 'afonneblog',
+            first_name = 'Paul',
+            last_name = 'Afonne-CID',
+            email = 'cid@afonne.com',
+            platform = 'instagram',
+            phone = '08071231219',
+            signup_date = dt.now(),
+            active = 'True'
+        )
+
+        db.session.add(new_user)
+        db.session.commit()
+
+'''from credo.payment import Payment
 
 load_dotenv()
 
 payment = Payment(env['PUBLIC_KEY'], env['SECRET_KEY'])
 
 def transref_gen():
-    '''Generates unique transref'''
+    Generates unique transref
 
 @app.route('/make-payment', method=['POST'])
 def make_payment(val):
@@ -26,14 +44,13 @@ def make_payment(val):
         'successpage': 'llsslsissl.com',
         'sender': 'send_uname'
     }
-    test_card = {'Card Number': 5473 5001 6000 1018
-
-Expiry: 12/25
-
-CVV: 123
-
-PIN: 0000
-
+   
+    test_card = 
+    Card Number': 5473 5001 6000 1018
+    Expiry: 12/25
+    CVV: 123
+    PIN: 0000
+    
 
     c = User.query.filter(User.username == val['sender'].first())
     c_name, c_email, c_phone = c.first_name + c.last_name, c.email, c.phone
@@ -55,7 +72,4 @@ PIN: 0000
     payment_link = new_payment['paymentLink']
 
     status, verify_payment = payment.verify_payment(transaction_reference=transref)
-
-
-if __name__ == '__main__':
-    app.run()
+    '''

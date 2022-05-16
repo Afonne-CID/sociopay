@@ -7,7 +7,7 @@ class User(db.Model):
     '''
     __tablename__ = 'user'
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(50))
+    username = db.Column(db.String(50), nullable=False, unique=True)
     first_name = db.Column(db.String(100), nullable=False)
     last_name = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(100))
@@ -20,12 +20,12 @@ class UserPhoto(db.Model):
     '''Represents user_photo table
     '''
     __tablename__ = 'user_photo'
-    id = id.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     photo = db.Column(db.Text, unique=True, nullable=False)
     mimetype = db.Column(db.Text, nullable=False)
     date = db.Column(db.DateTime)
-    user_id = id.Column(db.Integer, db.ForeignKey('user.id'))
-    user = db.relationship('User', backref=backref('user', uselist=False))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user = db.relationship('User', backref='user', uselist=False)
 
 class Payment(db.Model):
     '''Represents the payment table
@@ -44,4 +44,25 @@ class Payment(db.Model):
     payment_slug = db.Column(db.String(100))
     payment_link = db.Column(db.String(250))
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    user = db.relationship('User', backref=backref('user', uselist=False))
+    user = db.relationship('User', backref='user', uselist=False)
+
+class BankDetails(db.Model):
+    '''bank_details table
+    '''
+    id = db.Column(db.Integer, primary_key=True)
+    bank = db.Column(db.String(50))
+    acct_num = db.Column(db.Integer)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user = db.relationship('User', backref='user', uselist=False)
+
+class VirtualCards(db.Model):
+    '''virtual_cards table
+    '''
+    id = db.Column(db.Integer, primary_key=True)
+    card_number = db.Column(db.String(16), unique=True)
+    card_type = db.Column(db.String(20))
+    cvv = db.Column(db.String(7))
+    expiry = db.Column(db.DateTime)
+    card_balance = db.Column(db.Float)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user = db.relationship('User', backref='user', uselist=False)

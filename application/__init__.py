@@ -4,6 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
 
+
 def create_app():
     '''Construct the core application'''
     app = Flask(__name__, instance_relative_config=False)
@@ -14,5 +15,8 @@ def create_app():
     with app.app_context():
         '''Creates the database tables
         '''
+        from . import routes
         db.create_all()
-    return app
+        
+        
+        return app
