@@ -1,75 +1,78 @@
+import uuid
 from os import environ as env
 from flask import request, make_response
 from dotenv import load_dotenv
 from datetime import datetime as dt
 from flask import current_app as app
-from .models import db, User #, Payment
-
-@app.route('/', methods=['POST', 'GET'])
-def add_user():
-    if request.method == 'GET':
-        new_user = User(
-            username = 'afonneblog',
-            first_name = 'Paul',
-            last_name = 'Afonne-CID',
-            email = 'cid@afonne.com',
-            platform = 'instagram',
-            phone = '08071231219',
-            signup_date = dt.now(),
-            active = 'True'
-        )
-
-        db.session.add(new_user)
-        db.session.commit()
-
-'''from credo.payment import Payment
+from .models import db, User, Payment
+from credo.payment import Payment as credo_payment
 
 load_dotenv()
 
-payment = Payment(env['PUBLIC_KEY'], env['SECRET_KEY'])
+credo_public_key = env['CREDO_PUBLIC_KEY']
+credo_secret_key = env['CREDO_SECRET_KEY']
+flutter_public_key = env['FLUTTER_PUBLIC_KEY']
+flutter_secret_key = env['FLUTTER_PUBLIC_KEY']
 
-def transref_gen():
-    Generates unique transref
+payment = credo_payment(credo_public_key, credo_secret_key)
 
-@app.route('/make-payment', method=['POST'])
-def make_payment(val):
-    transref = transref_gen()
-    {   'platform': 'pname',
-        'unames': ['uname1', 'uname2', 'uname3', 'uname4'],
-        'amount': 0,
-        'currency': 'NGN',
-        'card_number': '02xxxxxxxxxxx',
-        'card_expiry': str('date'),
-        'CVV': '000',
-        'successpage': 'llsslsissl.com',
-        'sender': 'send_uname'
-    }
-   
-    test_card = 
-    Card Number': 5473 5001 6000 1018
-    Expiry: 12/25
-    CVV: 123
-    PIN: 0000
-    
+@app.route('/add-user', methods=['POST'])
+def add_user():
+    new_user = User(
+        username = '',
+        first_name = '',
+        last_name = '',
+        email = '',
+        platform = '',
+        phone = '',
+        active = True
+    )
+    db.session.add(new_user)
+    db.session.commit()
+    return 'success'
 
-    c = User.query.filter(User.username == val['sender'].first())
-    c_name, c_email, c_phone = c.first_name + c.last_name, c.email, c.phone
+@app.route('/user/<id>', methods=['GET'])
+def get_user(id):
+    user = db.session.query(User).filter(User.id==id).first()
+    res = {}
+    res['name'] = '{} {}'.format(user.first_name, user.last_name)
+    res['email'] = user.email
+    res['phone'] = user.phone
+    return res
 
+
+@app.route('/payment/<user_id>', methods=['GET'])
+def get_payment(user_id):
+    '''Return all payments that belong to a user
+    '''
+    user_payment = db.session.query(Payment).join(User, Payment.user_id==user_id).all()
+    return user_payment[0].currency
+
+
+def trans_ref():
+    '''Generates unique transref
+    '''
+    transref = str(uuid.uuid4())
+    return str(transref.split('-')[-1])
+
+@app.route('/make-payment', methods=['POST'])
+def make_payment():
+    val = request.get_json(force=True)
+    res = get_user(1)
     status, new_payment = payment.initiate_payment(
-        amount=float(val['amount']), currency=['currency'], customer_name=c_name,
-        customer_email=c_email,
-        customer_phone=c_phone,
+        amount=float(val['amount']),
+        currency=val['currency'],
+        customer_name=res['name'],
+        customer_email=res['email'],
+        customer_phone=res['phone'],
+        trans_ref = trans_ref(),
         payment_options='CARD,BANK',
         redirect_url=''
     )
 
-    {
-        "status": "success",
-        "message": "Redirect browser to the payment link",
-        "paymentLink": "https://credocentral.com/paymentgateway/l986g24r66fs",
-        "paymentSlug": "l986g24r66fs"
-    }
-    payment_link = new_payment['paymentLink']
-
-    status, verify_payment = payment.verify_payment(transaction_reference=transref)
-    '''
+    if status == 200:
+        payment_link = new_payment['paymentLink']
+        payment_slug = new_payment['paymentSlug']
+        return 'success'
+    
+# status, verify_payment = payment.verify_payment(transaction_reference=transref)

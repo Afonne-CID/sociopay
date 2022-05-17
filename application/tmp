@@ -1,0 +1,11 @@
+{
+    "platform": "instagram",
+    "unames": ["afonneblog"],
+    "amount": 100.0,
+    "currency": "NGN",
+    "card_number": "5473 5001 6000 1018",
+    "card_expiry": "12/25",
+    "CVV": "123",
+    "successpage": "",
+    "sender": "send_uname"
+}
