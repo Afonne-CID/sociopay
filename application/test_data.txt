@@ -24,3 +24,6 @@ Request Virtual Card
     "amount": 100,
     "debit_currency": "NGN"
 }
+
+background: rgb(209,163,24);
+background: linear-gradient(90deg, rgba(209,163,24,0.9332107843137255) 0%, rgba(223,154,23,0.9920343137254902) 37%, rgba(0,189,255,1) 100%);

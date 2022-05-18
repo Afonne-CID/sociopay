@@ -1,7 +1,8 @@
 import uuid
+import json
 import requests
 from os import environ as env
-from flask import request, make_response
+from flask import request
 from dotenv import load_dotenv
 from datetime import datetime as dt
 from flask import current_app as app
@@ -198,23 +199,25 @@ def virutal_card(user_id):
         val = request.get_json(force=True)
         res = get_user(user_id)
 
-        data = {
-            "billing_name": res['name'],
-            "billing_address": res['address'],
-            "billing_city": res['city'],
-            "billing_state": res['state'],
-            "billing_postal_code": res['postal_code'],
-            "billing_country": res['country'],
-            "currency": val['card_currency'],
-            "amount": val['amount'],
-            "debit_currency": val['debit_currency']
-        }
+        payload = (
+            {  
+                'billing_name': res['name'],
+                'billing_address': res['address'],
+                'billing_city': res['city'],
+                'billing_state': res['state'],
+                'billing_postal_code': int(res['postal_code']),
+                'billing_country': res['country'],
+                'currency': val['card_currency'],
+                'amount': val['amount'],
+                'debit_currency': val['debit_currency']
+            }
+        )
 
         headers = { 
-            "Content-Type": "application/json", 
-            "Authorization": flutter_secret_key
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + flutter_secret_key
         }
         
-        response = requests.post(url, data=data, headers=headers)
-        return f'{response}'
+        response = requests.post(url, json=payload, headers=headers)
+        return f'{response.text}'
     # status, verify_payment = payment.verify_payment(transaction_reference=transref)
