@@ -24,7 +24,7 @@ class User(db.Model):
     user_photo = db.relationship('UserPhoto', backref='user', lazy=True)
     payment = db.relationship('Payment', backref='user', lazy=True)
     bank_details = db.relationship('BankDetails', backref='user', lazy=True)
-    virtual_card = db.relationship('VirtualCards', backref='user', lazy=True)
+    virtual_card = db.relationship('VirtualCard', backref='user', lazy=True)
 
 
 class UserPhoto(db.Model):

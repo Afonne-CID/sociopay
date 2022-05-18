@@ -60,10 +60,10 @@ def get_user(id):
         res['postal_code'] = user.postal_code
         res['country'] = user.country
 
-        return 'Registration successful'
+        return res
 
     except:
-        return 'Failed'
+        return 'User does not exist'
 
 
 @app.route('/payment/<user_id>/<payment_id>', methods=['GET', 'POST'])
@@ -101,7 +101,7 @@ def trans_ref():
 @app.route('/make-payment/<id>', methods=['POST'])
 def make_payment(id):
     res = get_user(id)
-    trans_ref = trans_ref(),
+    transref = trans_ref()
     user_input = request.get_json(force=True)
 
     platforms = user_input.keys()
@@ -113,7 +113,7 @@ def make_payment(id):
             customer_name=res['name'],
             customer_email=res['email'],
             customer_phone=res['phone'],
-            trans_ref = trans_ref,
+            trans_ref = transref,
             payment_options='CARD,BANK',
             redirect_url=''
         )
@@ -168,24 +168,27 @@ def make_payment(id):
             except:
                 return {'status': 'failed'}
 
-@app.route('/virtual-card/<id>', methods=['POST', 'GET'])      
-def virutal_card(id):
+@app.route('/virtual-card/<user_id>', methods=['POST', 'GET'])      
+def virutal_card(user_id):
     '''In order for users to request card,
       they'll need to update their profile
     '''
     if request.method == 'GET':
         '''Returns card details
         '''
-        virtual_card = db.session.query(VirtualCard).filter(VirtualCard.user_id==id).first()
-        v = virtual_card
-        res = {
-            "card_number": v.card_number,
-            "card_type": v.card_type,
-            "cvv": v.cvv,
-            "expiry": v.expiry,
-            "card_balance": v.card_balance
-        }
-        return res
+        try:
+            virtual_card = db.session.query(VirtualCard).filter(VirtualCard.user_id==user_id).first()
+            v = virtual_card
+            res = {
+                "card_number": v.card_number,
+                "card_type": v.card_type,
+                "cvv": v.cvv,
+                "expiry": v.expiry,
+                "card_balance": v.card_balance
+            }
+            return res
+        except:
+            return 'No cards found'
 
 
     if request.method == 'POST':
@@ -193,7 +196,7 @@ def virutal_card(id):
         '''
         url = 'https://api.flutterwave.com/v3/virtual-cards'
         val = request.get_json(force=True)
-        res = get_user(id)
+        res = get_user(user_id)
 
         data = {
             "billing_name": res['name'],
