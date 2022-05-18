@@ -14,7 +14,12 @@ class User(db.Model):
     platform = db.Column(db.String(50))
     phone = db.Column(db.String(50))
     signup_date = db.Column(db.DateTime)
-    # authenticated = db.Column(db.Boolean, default=False, nullable=False)
+    address = db.Column(db.String(250))
+    city = db.Column(db.String(50))
+    state = db.Column(db.String(50))
+    postal_code = db.Column(db.String(50))
+    country = db.Column(db.String(50))
+    authenticated = db.Column(db.Boolean, default=False, nullable=False)
     active = db.Column(db.Boolean, default=True)
     user_photo = db.relationship('UserPhoto', backref='user', lazy=True)
     payment = db.relationship('Payment', backref='user', lazy=True)
@@ -37,12 +42,11 @@ class Payment(db.Model):
     id = db.Column(db.Integer, primary_key=True, unique=True)
     status = db.Column(db.String(10), nullable=False)
     sender = db.Column(db.String(50), nullable=False)
-    receiver = db.Column(db.String(50), nullable=False)
     amount = db.Column(db.Float, nullable=False)
     currency = db.Column(db.String(10))
     payment_id = db.Column(db.String(200), nullable=False)
     payment_date = db.Column(db.DateTime)
-    transref = db.Column(db.String(250))
+    trans_ref = db.Column(db.String(250))
     credoref = db.Column(db.String(250))
     payment_option = db.Column(db.String(50), nullable=False)
     payment_slug = db.Column(db.String(100))
@@ -59,7 +63,7 @@ class BankDetails(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
 
-class VirtualCards(db.Model):
+class VirtualCard(db.Model):
     '''virtual_cards table
     '''
     id = db.Column(db.Integer, primary_key=True, unique=True)
