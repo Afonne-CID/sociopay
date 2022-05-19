@@ -38,33 +38,25 @@ def add_user():
             country = u['country'],
             authenticated = False
         )
-    except:
-        return 'All fields are required'
+    except Exception as e:
+        return f'{e}'
 
     db.session.add(new_user)
     db.session.commit()
 
-    return 'success'
+    return {
+        'status': 'success',
+        'message': 'Registration Successful'
+    }
 
 @app.route('/user/<id>', methods=['GET'])
 def get_user(id):
     
     try:
-        user = db.session.query(User).filter(User.id==id).first()
-        res = {}
-        res['name'] = '{} {}'.format(user.first_name, user.last_name)
-        res['email'] = user.email
-        res['phone'] = user.phone
-        res['address'] = user.address
-        res['city'] = user.city
-        res['state'] = user.state
-        res['postal_code'] = user.postal_code
-        res['country'] = user.country
+        return db.session.query(User).filter(User.id==id).first()
 
-        return res
-
-    except:
-        return 'User does not exist'
+    except Exception as e:
+        return f'{e}'
 
 
 @app.route('/payment/<user_id>/<payment_id>', methods=['GET', 'POST'])
@@ -98,81 +90,111 @@ def trans_ref():
         status = db.session.query(Payment).filter(trans_ref==Payment.trans_ref).first()
     return trans_ref
 
+def diff(first, second):
+    '''Returns the difference between two lists'''
+    return list(set(first) - set(second)) + list(set(second) - set(first))
 
-@app.route('/make-payment/<id>', methods=['POST'])
-def make_payment(id):
-    res = get_user(id)
-    transref = trans_ref()
-    user_input = request.get_json(force=True)
+@app.route('/make-payment/<user_id>', methods=['POST'])
+def make_payment(user_id):
 
-    platforms = user_input.keys()
-    for platform in platforms:
-        val = user_input[platform]
-        status, new_payment = payment.initiate_payment(
-            amount=float(val['amount']),
-            currency=val['currency'],
-            customer_name=res['name'],
-            customer_email=res['email'],
-            customer_phone=res['phone'],
-            trans_ref = transref,
-            payment_options='CARD,BANK',
-            redirect_url=''
-        )
+    user = get_user(user_id)
 
-        if status == 200:
-            payment_link = new_payment['paymentLink']
-            payment_slug = new_payment['paymentSlug']
+    if type(user) == User:
 
-            headers = {
-                "Content-Type": "application/json; charset=utf-8",
-                "Authorization": credo_secret_key
-            }
-    
-            data = {
-                "cardNumber": val["card_number"],
-                "cardExpiry": val["card_expiry"],
-                "cvv": val["cvv"]
-            }
+        transref = trans_ref()
+        user_input = request.get_json(force=True)
+        platforms = user_input.keys()
+        payment_status = {}
 
-            receivers = val['receivers']
-    
-            try:
-                response = requests.post(payment_link, json=data, headers=headers)
-                prepare_pay = Payment(
-                        status = response['status'],
-                        sender = val['sender'],
-                        amount = val['amount'],
-                        currency = val['currency'],
-                        payment_id = val['payment_id'],
-                        payment_date = dt.now(),
-                        trans_ref = trans_ref,
-                        payment_option = val['payment_option'],
-                        credoref = "",
-                        payment_slug = payment_slug,
-                        payment_link = payment_link,
-                        user_id = id
+        for platform in platforms:
+            val = user_input[platform]
+            status, new_payment = payment.initiate_payment(
+                customer_name=user.first_name + ' ' + user.last_name,
+                customer_email=user.email,
+                customer_phone=user.phone,
+                amount=float(val['amount']),
+                currency=val['currency'],
+                trans_ref = transref,
+                payment_options='CARD,BANK',
+                redirect_url=''
+            )
+
+            if status == 200:
+                payment_link = new_payment['paymentLink']
+                payment_slug = new_payment['paymentSlug']
+
+                # Preparing to send payment request
+                # headers = {
+                #     "Content-Type": "application/json; charset=utf-8",
+                #     "Authorization": credo_secret_key
+                # }
+        
+                # data = {
+                #     "cardNumber": val["card_number"],
+                #     "cardExpiry": val["card_expiry"],
+                #     "cvv": val["cvv"]
+                # }
+
+                receivers = val['receivers']
+
+                try:
+                    #response = requests.post(payment_link, json=data, headers=headers) #Sending the request
+                    prepare_pay = Payment(
+                            status = 'success', #response['status'],
+                            sender = user.username,
+                            amount = val['amount'],
+                            currency = val['currency'],
+                            payment_id = val['payment_id'],
+                            payment_date = dt.now(),
+                            trans_ref = transref,
+                            payment_option = val['payment_option'],
+                            credoref = "", #To be supplied from credo
+                            payment_slug = payment_slug,
+                            payment_link = payment_link,
+                            user_id = user_id
                     )
 
-                for receiver in receivers:
-                    '''Alter receivers' balances
-                    '''
-                    new_balance = db.session.query(User).filter(
-                        User.platform==platform,
-                        User.username==receiver
-                    ).first()
+                    users_on_platform = db.session.query(User).filter(User.platform==platform).all()
 
-                    new_balance.balance = val['amount']
+                    print(users_on_platform)
 
-                db.session.add(prepare_pay)
-                db.session.commit()
+                    success = []
+                    for i in users_on_platform:
+                        i.wallet_balance += val['amount']
+                        success.append(i.username)
+                    
+                    
+                    db.session.add(prepare_pay)
+                    db.session.commit()
 
-            except:
-                return {'status': 'failed'}
+                except Exception as e:
+                    return f'{e}'
+
+            if len(success) == len(receivers):
+                payment_status[platform] = {
+                    'status': 'success',
+                    'message': 'all payments successful',
+                    'receivers': receivers
+                }
+            else:
+                difference = diff(success, receivers)
+
+                for _ in difference:
+                    user.wallet_balance += val['amount'] 
+
+                payment_status[platform] = {
+                    'status': '{} failed payments were reversed to your account'.format(len(difference)),
+                    'message': '{}-> not valid SocioPay registered {} user handles'.format(difference, platform),
+                    'receivers': success,
+                    'failed': difference
+                }
+    else:
+        return user
+    return payment_status
 
 @app.route('/virtual-card/<user_id>', methods=['POST', 'GET'])      
 def virutal_card(user_id):
-    '''In order for users to request card,
-      they'll need to update their profile
+    '''Get and create virtual cards for the given user_id
     '''
     if request.method == 'GET':
         '''Returns card details
