@@ -1,0 +1,78 @@
+Request Virtual Card
+{
+    "card_currency": "USD",
+    "amount": 100,
+    "debit_currency": "NGN"
+}
+
+Create User
+{
+    "username": "afonneblog",
+    "first_name": "Paul",
+    "last_name": "Afonne-CID",
+    "email": "email@email.com",
+    "platform": "instagram",
+    "phone": "08122319231",
+    "created_at": "12/20",
+    "updated_at": "",
+    "address": "My address",
+    "city": "PH",
+    "state": "Rivers",
+    "postal_code": "500727",
+    "country": "Nigeria"
+}
+
+Make payment
+{"instagram":
+    {
+        "amount":  100,
+        "currency": "NGN",
+        "customer_name": "NOBODY",
+        "customer_email": "res['email']",
+        "customer_phone": "res['phone']",
+        "trans_ref":  "trans_ref()",
+        "payment_option": "CARD",
+        "redirect_url": "",
+        "card_number": "5473 5001 6000 1018",
+        "card_expiry": "12/25",
+        "cvv": "123",
+        "platform": "nothing",
+        "receivers": ["afonneblog", "chris", "afonne", "op"],
+      	"payment_id": "valid_p_id",
+      	"payment_date": "12/20"
+    },
+"twitter":
+    {
+        "amount":  1000,
+        "currency": "NGN",
+        "customer_name": "NOBODY",
+        "customer_email": "res['email']",
+        "customer_phone": "res['phone']",
+        "trans_ref":  "trans_ref()",
+        "payment_option": "CARD",
+        "redirect_url": "",
+        "card_number": "5473 5001 6000 1018",
+        "card_expiry": "12/25",
+        "cvv": "123",
+        "platform": "nothing",
+        "receivers": ["afonneblog", "chris", "afonne", "op"],
+      	"payment_id": "valid_p_id",
+      	"payment_date": "12/20"
+    }
+}
+
+        new_user = User(
+            username = u['username'],
+            first_name = u['first_name'],
+            last_name = u['last_name'],
+            email = u['email'],
+            platform = u['platform'],
+            phone = u['phone'],
+            active = True,
+            address = u['address'],
+            city = u['city'],
+            state = u['state'],
+            postal_code = u['postal_code'],
+            country = u['country'],
+            authenticated = False
+        )
