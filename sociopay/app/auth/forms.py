@@ -29,7 +29,6 @@ class CreateAccountForm(FlaskForm):
     last_name = StringField('First Name',
                             id='last_name',
                             validators=[DataRequired()])
-    platform = 'sociopay'
     phone = StringField('Phone',
                         id='phone',
                         validators=[DataRequired()])

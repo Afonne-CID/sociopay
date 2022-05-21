@@ -8,9 +8,9 @@ from app import db, login_manager
 from app.auth import blueprint
 from app.auth.forms import LoginForm, CreateAccountForm
 from ..models import User
+import requests
 
 from app.auth.util import verify_pass
-
 
 @blueprint.route('/')
 def route_default():
@@ -72,7 +72,12 @@ def register():
                                    form=create_account_form)
 
         # else we can create the user
+        currency = requests.get('https://ipapi.co/currency/')
+        for i in currency:
+            cur = i.decode('utf-8')
         user = User(**request.form)
+        user.platform = 'sociopay'
+        user.currency = cur
         db.session.add(user)
         db.session.commit()
 

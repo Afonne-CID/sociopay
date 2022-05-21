@@ -1,14 +1,12 @@
 import uuid
-import json
 import requests
 from os import environ as env
-from flask import request
 from dotenv import load_dotenv
 from datetime import datetime as dt
-from flask import current_app as app
-from .models import VirtualCard, db, User, Payment
+from flask_login import current_user, login_required
+from flask import current_app as app, request, render_template
+from .models import VirtualCard, db, User, Payment, UserPhoto
 from credo.payment import Payment as credo_payment
-
 
 load_dotenv()
 
@@ -18,25 +16,6 @@ flutter_public_key = env['FLUTTER_PUBLIC_KEY']
 flutter_secret_key = env['FLUTTER_PUBLIC_KEY']
 
 payment = credo_payment(credo_public_key, credo_secret_key)
-
-@app.route('/payment/<user_id>/<payment_id>', methods=['GET', 'POST'])
-def get_payment(user_id, payment_id):
-    '''Return all payments that belong to a user
-    '''
-    payment = db.session.query(Payment).filter(
-        Payment.user_id==user_id,
-        Payment.payment_id==payment_id
-    )
-    return f'{payment}'
-
-@app.route('/payments/<user_id>')
-def get_payments(user_id):
-    '''Return all payments of the `user_id`
-    '''
-    payments = db.session.query(Payment).filter(
-        Payment.user_id==user_id
-    )
-    return f'{payments}'
 
 def trans_ref():
     '''Generates unique transref
@@ -50,14 +29,16 @@ def trans_ref():
         status = db.session.query(Payment).filter(trans_ref==Payment.trans_ref).first()
     return trans_ref
 
+
 def diff(first, second):
     '''Returns the difference between two lists'''
     return list(set(first) - set(second)) + list(set(second) - set(first))
 
-@app.route('/make-payment/<user_id>', methods=['POST'])
-def make_payment(user_id):
+@app.route('/make-payment', methods=['POST'])
+@login_required
+def make_payment():
 
-    user = get_user(user_id)
+    user = db.session.query(User).filter(User.id==current_user.id)
 
     if type(user) == User:
 
@@ -76,7 +57,7 @@ def make_payment(user_id):
                 currency=val['currency'],
                 trans_ref = transref,
                 payment_options='CARD,BANK',
-                redirect_url=''
+                redirect_url='http://192.168.1.191:5000/payment/status'
             )
 
             if status == 200:
@@ -95,10 +76,12 @@ def make_payment(user_id):
                 #     "cvv": val["cvv"]
                 # }
 
+                #response =r equests.post(payment_link, json=data, headers=headers) #Sending the request
+
+                user_input = request.get_json(force=True)
                 receivers = val['receivers']
 
                 try:
-                    #response = requests.post(payment_link, json=data, headers=headers) #Sending the request
                     prepare_pay = Payment(
                             status = 'success', #response['status'],
                             sender = user.username,

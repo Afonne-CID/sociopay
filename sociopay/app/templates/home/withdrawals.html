@@ -1,6 +1,6 @@
 {% extends "layouts/base.html" %}
 
-{% block title %} Dashboard {% endblock %} 
+{% block title %} Widthdrawals {% endblock %} 
 
 <!-- Specific CSS goes HERE -->
 {% block stylesheets %}{% endblock stylesheets %}
@@ -20,7 +20,7 @@
                         <div class="row">
                             <!--[ daily sales section ] start-->
                             <div class="col-md-12">
-                                <a href="/make-payment">
+                                <a href="/make-payment.html">
                                     <button type="button" class="btn btn-primary float-right" title="btn btn-primary" data-toggle="tooltip">Initiate New Payment</button>
                                 </a>
                                 <br>
@@ -87,10 +87,10 @@
                             </div>
                             <!--[ year  sales section ] end-->
                             <!--[ Recent Users ] start-->
-                            <div class="col-xl-8 col-md-6">
+                            <div class="col-xl-12 col-md-6">
                                 <div class="card Recent-Users">
                                     <div class="card-header">
-                                        <h5>Recent Payments</h5>
+                                        <h5>Withdrawals</h5>
                                     </div>
                                     <div class="card-block px-0 py-3">
                                         <div class="table-responsive">
@@ -100,9 +100,7 @@
                                                         <th>Amount</th>
                                                         <th>Date</th>
                                                         <th>Status</th>
-                                                        <th>Receiver</th>
-                                                        <th>Payment ID</th>
-                                                        <th>Payment Option</th>
+                                                        <th>Withdrawal ID</th>
                                                     </tr>
                                                     {% for payment in payments %}
                                                         <tr class="unread">

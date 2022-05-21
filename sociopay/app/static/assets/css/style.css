@@ -1,51 +1,3 @@
-/**======================================================================
-=========================================================================
-Template Name: Datta Able Admin Template
-Author: Codedthemes
-supports: https://codedthemes.support-hub.io/
-File: style.css
-=========================================================================
-=========================================================================
-  == Table of Contents==
-	- Generic classes
-		-	Margin, Padding, Font class, text align, position, floating, overflow, background class, text color, display class, boarder class
-	- Theme Elements
-		-	Accordion, Button, tabs, typography, buttons, box shadow, Lable & Badges, Alert, Pagination, Breadcumb, Cards, Collapse,
-        -   Carousel, Grid, Progress, Model, tooltip, popover, Datepicker, Gridstack, lightbox, notification, Nestable, pnotify, rating,
-        -   Rangeslider, Slider, Syntax Highlighter, Tour, Treeview, Toolbar, Session Timeout, Session idle Timeout, offline, Animation
-    - Forms
-        -   Forms Elements, Advance Form Control, Validation, Masking, Wizard, Picker, Select
-	- Pages
-		-   Chat, authentication, Maintenance, Maps, Landingpage messages, task, Todo, Notes, Charts, Icons, Gallery, Editors,
-        -   Invoice, Full Calender, File Upload,
-=================================================================================
-=================================================================================== */
-/*
-    description Of variables for build for theme layouts
-        1) menu-caption-color
-            List of color for sidebar menu caption
-
-        2) brand-background
-            List of color for logo background
-
-        3) header-dark-background
-            List of color for Dark Header
-
-        4) header-light-background
-            List of color for light Header
-
-        5) menu-dark-background
-            List of color for Dark sidebar menu
-
-        6) menu-light-background
-            List of color for light sidebar menu
-
-        7) menu-active-color
-            List of color for Active item highliter
-
-        8) menu-icon-color
-            List of color for sidebar menu items icon colors
-*/
 /**  =====================
      Google Font
 ==========================  **/
@@ -10543,30 +10495,11 @@ div.code-toolbar > .toolbar span:hover {
 	border-radius: 0.25rem
 }
 
+.fixed-button {
+  display: none;
+}
 .fixed-button .btn {
-	margin: 0;
-	background: #79b530;
-	border: none;
-	border-bottom: 2px solid #5e8d25;
-	text-transform: capitalize;
-	font-weight: bold;
-	font-size: 16px
-}
-
-.fixed-button .btn:hover {
-	background: #79b530;
-	border: none;
-	border-bottom: 2px solid #5e8d25
-}
-
-.fixed-button:hover {
-	-webkit-animation: none;
-	animation: none
-}
-
-.fixed-button.active {
-	bottom: 50px;
-	opacity: 1
+  display: none;
 }
 
 @-webkit-keyframes pulse {
@@ -10597,4 +10530,12 @@ div.code-toolbar > .toolbar span:hover {
 		-webkit-box-shadow: 0 0 0 0 rgba(4, 169, 245, 0);
 		box-shadow: 0 0 0 0 rgba(4, 169, 245, 0)
 	}
+}
+
+.grMNfd {
+  background: white !important;
+}
+
+.bAvjEG {
+  display: none !important;
 }

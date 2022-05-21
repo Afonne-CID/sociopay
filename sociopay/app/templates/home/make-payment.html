@@ -1,0 +1,135 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Make payment {% endblock %} 
+
+<!-- Specific CSS goes HERE -->
+{% block stylesheets %}
+    <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='assets/css/custom.css') }}">
+{% endblock stylesheets %}
+
+<script src="{{url_for('static', filename='assets/js/custom.js')}}"></script>
+
+{% block content %}
+<div>
+    <div id="credo-payments">
+        <form role="form" id="payment-form" method="post" action="">
+            {% if msg or error %}
+                <div class="form-row float-right">
+                    <p class="btn btn-danger">
+                        {% if msg %}
+                            {{ msg }}
+                        {% endif %}
+                        {% if error %}
+                            {{ error }}
+                        {% endif %}
+                    </p>
+                </div>
+                <br><br><br>
+
+            {% endif %}
+            <div class="form-row float-right">
+                <br><br><br><br>
+                <div class="very-unique">
+                    <div class="form-row float-right">
+                        <div class="col-auto">
+                            <label class="sr-only" for="inlineFormInput">Platform</label>
+                            <select name="Platform" class="btn btn-secondary" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                {% for platform in platforms %}
+                                    <option value="{{ platform }}">{{ platform }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-auto">
+                            <label class="sr-only" for="inlineFormInputGroup">Username</label>
+                            <div class="input-group mb-2">
+                            <div class="input-group-prepend">
+                                <div class="input-group-text">@</div>
+                            </div>
+                                {{ form.receivers(placeholder="example, me", type="text", class="form-control") }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-auto">
+                    <span id="add" class="btn btn-primary mb-2"><i class="fa fa-plus" aria-hidden="true"></i><span>
+                </div>
+                <div class="col-auto">
+                    <label class="sr-only" for="inlineFormInput">Amount</label>
+                    {{ form.amount(placeholder=user.currency, type="text", class="form-control mb-2", id="inlineFormInput") }}
+                </div>
+                <div class="col-auto">
+                    <label for="pament_option" class="sr-only">Payment Option</label>
+                    <select name="payment_option" class="btn btn-secondary dropdown-toggle" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        {% for option in payment_option %}
+                        <option class="dropdown-item" value="{{ option }}">{{ option }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-auto">
+                    <button class="btn btn-primary" value="start" name="start">Start</button>
+                </div>
+            </div>
+        </form>
+        <br><br><br><br>
+        <button type="submit" name="pay" class="btn btn-primary col-md-6 float-right">Pay Now</button>
+        <br><br><br>
+    </div>
+    {% if success %}
+        <iframe
+            allowtransparency="true";
+            width="100%"
+            height="500px"
+            class="float-center"
+            style="background: #fff !important;"
+            src="{{ payment_link }}"
+            frameborder="0"
+            framebackground="none"
+            id="credo_form">
+        </iframe>
+    {% elseif payment_success %}
+        <div class="container">
+            <div class="row">
+            <div class="col-md-6 mx-auto mt-5">
+                <div class="payment">
+                    <div class="payment_header">
+                        <div class="check"><i class="fa fa-check" aria-hidden="true"></i></div>
+                    </div>
+                    <div class="content">
+                        <h1>Payment Success !</h1>
+                        <p>Your payment to {% for receiver in receivers %}
+                            {{ receiver }}, was successful
+                        </p>
+                        <a href="/make-payment">Make Another Payment</a>
+                    </div>
+                    
+                </div>
+            </div>
+            </div>
+        </div>
+    {% elseif not payment_success %}
+        <div class="container">
+            <div class="row">
+            <div class="col-md-6 mx-auto mt-5">
+                <div class="payment">
+                    <div class="payment_header">
+                        <div class="check"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i></div>
+                    </div>
+                    <div class="content">
+                        <h1>Opps ! Something Went Wrong</h1>
+                        <p>Your payment to {% for receiver in receivers %}
+                            {{ receiver }}, was not successful
+                        </p>
+                        <a href="/make-payment">Try Again</a>
+                    </div>
+                    
+                </div>
+            </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock content %}
+
+{% block javascripts %}
+    <script src="/static/assets/js/custom.js"></script>
+{% endblock javascripts %}
